@@ -1,3 +1,16 @@
 fastapi
 uvicorn
 sqlalchemy
+pydantic
+alembic
+passlib
+bcrypt
+jose
+pycryptodome
+python-jose
+python-multipart
+aiofiles
+requests
+pytest
+jinja2
+websockets
