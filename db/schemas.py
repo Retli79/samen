@@ -3,13 +3,50 @@
 from pydantic import BaseModel
 from typing import Optional, List
 
+#Inside user display 
+class  User(BaseModel):
+    username: str
+    class Config:
+        orm_mode = True
+
+class Post(BaseModel):
+    id: int
+    title: int
+    content: str
+    class Config:
+        orm_mode = True
+
+class FriendRequest(BaseModel):
+    id: int
+    status: int
+    class Config:
+        orm_mode = True
+
+class Group(BaseModel):
+    id: int
+    name: str
+    description: str
+    class Config:
+        orm_mode = True
+
+class GroupMembership(BaseModel):
+    id: int
+    role: str
+    class Config:
+        orm_mode = True
+
+
+##########################
+
+
 class UserBase(BaseModel):
     username: str
     email: str
     password: str
+   
 
 
-class User(UserBase):
+class UserDisplay(UserBase):
     id: int
     is_active: bool
     posts: List['Post'] = []
@@ -28,7 +65,7 @@ class PostBase(BaseModel):
     content: str
 
 
-class Post(PostBase):
+class PostDisplay(PostBase):
     id: int
     owner_id: int
     owner: User
@@ -37,11 +74,13 @@ class Post(PostBase):
         orm_mode = True
 
 class FriendRequestBase(BaseModel):
+    id: Optional[int] = None
     sender_id: int
     receiver_id: int
+    status: Optional[str] = 'pending'
 
 
-class FriendRequest(FriendRequestBase):
+class FriendRequestDisplay(FriendRequestBase):
     id: int
     status: str
     sender: User
@@ -55,7 +94,7 @@ class GroupBase(BaseModel):
     description: Optional[str] = None
 
 
-class Group(GroupBase):
+class GroupDisplay(GroupBase):
     id: int
     admin_id: int
     admin: User
@@ -69,7 +108,7 @@ class GroupMembershipBase(BaseModel):
     group_id: int
 
 
-class GroupMembership(GroupMembershipBase):
+class GroupMembershipDisplay(GroupMembershipBase):
     id: int
     role: str
     user: User
@@ -79,8 +118,8 @@ class GroupMembership(GroupMembershipBase):
         orm_mode = True
 
 # Resolve forward references
-User.update_forward_refs()
-Post.update_forward_refs()
-FriendRequest.update_forward_refs()
-Group.update_forward_refs()
-GroupMembership.update_forward_refs()
+# User.update_forward_refs()
+# Post.update_forward_refs()
+# FriendRequest.update_forward_refs()
+# Group.update_forward_refs()
+# GroupMembership.update_forward_refs()

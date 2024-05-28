@@ -13,17 +13,17 @@ router = APIRouter(
 )
 
 
-@router.post("/", response_model=schemas.Post)
+@router.post("/", response_model=schemas.PostDisplay)
 def create_post( request: schemas.PostBase, db: Session = Depends(get_db), current_user: schemas.UserBase = Depends(get_current_user)):
     return crud.create_post(db = db, request = request, owner_id=current_user.id)
 
 
-@router.get('/{id}', response_model=schemas.Post) 
+@router.get('/{id}', response_model=schemas.PostDisplay) 
 def read_post(id: int, db: Session = Depends(get_db), current_user: schemas.UserBase = Depends(get_current_user)):
     return crud.get_post(db, id) 
 
 
-@router.get("/", response_model=List[schemas.Post])
+@router.get("/", response_model=List[schemas.PostDisplay])
 def read_all_posts(db: Session = Depends(get_db), current_user: schemas.UserBase = Depends(get_current_user)):
     posts = crud.get_all_posts(db)
     return posts

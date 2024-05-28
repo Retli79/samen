@@ -14,6 +14,14 @@ def create_user(db: Session, request: schemas.UserBase):
         email = request.email, 
         password = Hash.bcrypt(request.password)
      )
+    test_user = db.query(models.User).filter(models.User.username == new_user.username).first()
+    if test_user:
+        raise HTTPException(status_code=400, detail="Username already registered")
+    
+    test_user = db.query(models.User).filter(models.User.email == new_user.email).first()
+    if test_user:
+        raise HTTPException(status_code=400, detail="Email already registered")
+
     db.add(new_user)
     db.commit()
     db.refresh(new_user)
@@ -35,6 +43,13 @@ def get_user_by_username(db: Session, username: str):
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, 
         detail=f"User with username {username} not found")
    return user
+
+# def get_user_by_email(db: Session, email: str):
+#    user = db.query(models.User).filter(models.User.email == email).first()
+#    if not user:
+#         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, 
+#         detail=f"User with email {email} already registered")
+#    return user
 
 def update_user(db: Session, id:int, request: schemas.UserBase):
     user = db.query(models.User).filter(models.User.id == id).first()
@@ -90,12 +105,27 @@ def get_post(db:Session, id: int):
 
 # FriendRequest-related operations
 
-def create_friend_request(db: Session, friend_request: schemas.FriendRequest, sender_id: int):
-    add_friend_request = models.FriendRequest(**friend_request.dict(), sender_id=sender_id, status="pending")
+def create_friend_request(db: Session, friend_request: schemas.FriendRequestBase):
+    add_friend_request = models.FriendRequest(sender_id=friend_request.sender_id, receiver_id=friend_request.receiver_id, status="pending")
     db.add(add_friend_request)
     db.commit()
     db.refresh(add_friend_request)
     return add_friend_request
+
+def update_friend_request(db: Session, friend_request: schemas.FriendRequestBase):
+    query = db.query(models.FriendRequest)
+    query = query.filter(models.FriendRequest.id == friend_request.id)
+    query = query.filter(models.FriendRequest.receiver_id == friend_request.receiver_id)
+    query = query.filter(models.FriendRequest.sender_id == friend_request.sender_id)
+    query = query.filter(models.FriendRequest.status == "pending")
+
+    db_friend_request = query.first()
+    if friend_request:
+        db_friend_request.status = friend_request.status
+        db.commit()
+        db.refresh(db_friend_request)
+    return db_friend_request
+
 
 def get_friend_requests(db: Session, user_id: int):
     return db.query(models.FriendRequest).filter((models.FriendRequest.sender_id == user_id) | (models.FriendRequest.receiver_id == user_id)).all()

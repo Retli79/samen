@@ -34,7 +34,7 @@ class Post(Base):
     title = Column(String, index= True)
     content = Column(String, index= True)
     owner_id = Column(Integer, ForeignKey('users.id'))
-    created_at = Column(DateTime, default=datetime.utcnow)
+    created_at = Column(DateTime, default=datetime.now)
     owner = relationship('User', back_populates='posts')
 
 class FriendRequest(Base):

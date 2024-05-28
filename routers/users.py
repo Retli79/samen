@@ -1,6 +1,6 @@
 # routers/users.py
 
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm.session import Session
 from db import schemas, crud
 from db.database import get_db
@@ -14,18 +14,18 @@ router = APIRouter(
 
 
 #Create User
-@router.post("/", response_model=schemas.User)
+@router.post("/")#, response_model=schemas.UserDisplay)
 def create_user(request: schemas.UserBase, db: Session = Depends(get_db)):
     return crud.create_user(db, request)
    
 
 #Read one user
-@router.get("/{id}", response_model= schemas.User)
+@router.get("/{id}", response_model= schemas.UserDisplay)
 def get_user(id: int, db: Session = Depends(get_db), current_user: schemas.UserBase = Depends(get_current_user)):
     return crud.get_user(db, id)
 
 #Read all Users
-@router.get('/', response_model= List[schemas.User])
+@router.get('/', response_model= List[schemas.UserDisplay])
 def get_all_users(db: Session = Depends(get_db), current_user: schemas.UserBase = Depends(get_current_user)):
     return crud.get_all_users(db)
 
