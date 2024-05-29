@@ -30,11 +30,11 @@ def get_all_users(db: Session = Depends(get_db), current_user: schemas.UserBase 
     return crud.get_all_users(db)
 
 #Update User
-@router.put("/{id}/update")
+@router.put("/{id}/")
 def update_user(id: int, request: schemas.UserBase, db: Session = Depends(get_db), current_user: schemas.UserBase = Depends(get_current_user)):
     return crud.update_user(db, id, request)
 
 #Delete User
-@router.delete("/{id}/delete")
+@router.delete("/{id}/")
 def delete_user(id: int, db: Session = Depends(get_db),current_user: schemas.UserBase = Depends(get_current_user)):
     return crud.delete_user(db, id)
