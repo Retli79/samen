@@ -28,3 +28,9 @@ def read_all_posts(db: Session = Depends(get_db), current_user: schemas.UserBase
     posts = crud.get_all_posts(db)
     return posts
 
+
+@router.delete("/{id}/")
+def delete_post(id: int, db: Session = Depends(get_db),current_user: schemas.GroupBase = Depends(get_current_user)):
+    crud.delete_post(db, id)
+    return
+

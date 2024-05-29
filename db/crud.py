@@ -103,6 +103,15 @@ def get_post(db:Session, id: int):
         detail=f"Post with id {id} not found")
     return post
 
+def delete_post(db: Session, id: int):
+    post = db.query(models.Post).filter(models.Post.id == id).first() 
+    if not post:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"Post with id {id} not found")
+    if post:
+        db.delete(post)
+        db.commit()
+    return 
+
 # FriendRequest-related operations
 
 def create_friend_request(db: Session, friend_request: schemas.FriendRequestBase):
@@ -178,3 +187,28 @@ def add_group_member(db: Session, group_id: int, user_id: int, role: str = 'memb
     db.commit()
     db.refresh(add_group_membership)
     return add_group_membership
+
+
+def delete_member(db: Session, member_id: int):
+    #member = db.query(models.Group).filter(models.Group.id == group_id).first() 
+    member = db.query(models.GroupMembership).filter(models.GroupMembership.id == member_id).first() 
+    if not member:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"Member with id {id} not found")
+    if member:
+        db.delete(member)
+        db.commit()
+    return 
+
+def delete_group(db: Session, group_id: int):
+    members = db.query(models.GroupMembership).filter(models.GroupMembership.group_id == group_id).all()
+    for member in members:
+        delete_member(db, member.id)
+    
+    group = db.query(models.Group).filter(models.Group.id == group_id).first()
+    if not group:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"Group with id {id} not found")
+    if group:
+        db.delete(group)
+        db.commit()
+    return
+

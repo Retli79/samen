@@ -5,6 +5,7 @@ from typing import Optional, List
 
 #Inside user display 
 class  User(BaseModel):
+    id: int
     username: str
     class Config:
         orm_mode = True
@@ -73,7 +74,7 @@ class PostDisplay(PostBase):
     class Config:
         orm_mode = True
 
-class FriendRequestBase(BaseModel):
+class FriendRequestBase(BaseModel): 
     id: Optional[int] = None
     sender_id: int
     receiver_id: int
