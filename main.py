@@ -7,9 +7,6 @@ from db import models
 from auth import authentication
 
 
-
-
-
 app = FastAPI()
 
 app.include_router(authentication.router)
