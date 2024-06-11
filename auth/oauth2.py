@@ -8,7 +8,7 @@ from jose.exceptions import JWTError
 from sqlalchemy.orm.session import Session
 from db.database import get_db
 from fastapi import HTTPException, status
-from db import crud
+from db import db_user
  
  
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
@@ -42,7 +42,7 @@ def get_current_user(token: str = Depends(oauth2_scheme), db: Session = Depends(
   except JWTError:
     raise credentials_exception
   
-  user =  crud.get_user_by_username(db, username)  
+  user =  db_user.get_user_by_username(db, username)  
   if user is None:
     raise credentials_exception
   return user
