@@ -14,6 +14,8 @@ router = APIRouter(
 
 @router.post("/requests", response_model=schemas.FriendRequestDisplay)
 def send_friend_request(friend_request: schemas.FriendRequestBase, db: Session = Depends(get_db), current_user: schemas.UserBase = Depends(get_current_user)):
+    if not friend_request.status == "Pending":
+        raise HTTPException(405, "Cannot create a friendrequest with a status diffenent than Pending")
     return db_friends.create_friend_request(db, friend_request)
 
 @router.put("/requests/{id}/", response_model=schemas.FriendRequestDisplay)

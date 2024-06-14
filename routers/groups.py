@@ -1,6 +1,6 @@
 # routers/groups.py
 
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm.session import Session
 from routers import schemas
 from db.database import get_db
