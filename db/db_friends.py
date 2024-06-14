@@ -1,3 +1,4 @@
+from typing import Optional
 from sqlalchemy.orm.session import Session
 from routers import schemas
 from db.hash import Hash
@@ -29,8 +30,12 @@ def update_friend_request(db: Session, friend_request: schemas.FriendRequestBase
     return db_friend_request
 
 
-def get_friend_requests(db: Session, user_id: int):
-    return db.query(models.FriendRequest).filter((models.FriendRequest.sender_id == user_id) | (models.FriendRequest.receiver_id == user_id)).all()
+def get_friend_requests(db: Session, user_id: int, status: Optional[str]):
+    query = db.query(models.FriendRequest).filter((models.FriendRequest.sender_id == user_id) | (models.FriendRequest.receiver_id == user_id))
+    if not status == None:
+        query = query.filter(models.FriendRequest.status == status)
+    
+    return query.all()
 
 def accept_friend_request(db: Session, request_id: int, receiver_id: int):
     friend_request = db.query(models.FriendRequest).filter(models.FriendRequest.id == request_id, models.FriendRequest.receiver_id == receiver_id).first()

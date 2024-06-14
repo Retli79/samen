@@ -33,7 +33,7 @@ def read_post(id: int, db: Session = Depends(get_db), current_user: schemas.User
 
 
 @router.get("/", response_model=List[schemas.PostDisplay])
-def read_all_posts(db: Session = Depends(get_db), current_user: schemas.UserBase = Depends(get_current_user)):
+def read_posts(db: Session = Depends(get_db), current_user: schemas.UserBase = Depends(get_current_user)):
     posts = db_post.get_all_posts(db)
     return posts
 
@@ -43,7 +43,7 @@ def delete_post(id: int, db: Session = Depends(get_db),current_user: schemas.Gro
     db_post.delete_post(db, id)
     return
 
-@router.post('/image')
+@router.post('/')
 def upload_image(image: UploadFile = File(...)):
   letters = string.ascii_letters
   rand_str = ''.join(random.choice(letters) for i in range(6))

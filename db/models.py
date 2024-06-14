@@ -80,9 +80,7 @@ class GroupMembership(Base):
     user = relationship('User', back_populates='group_memberships')
     group = relationship('Group', back_populates='members')
 
-############################
 
-# models.py
 
 class GroupRequest(Base):
     __tablename__ = 'group_requests'
