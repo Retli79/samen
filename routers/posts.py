@@ -19,7 +19,7 @@ router = APIRouter(
 
 image_url_types = ['absolute', 'relative']
 
-@router.post("/", response_model=schemas.PostDisplay)
+@router.post("/create_post", response_model=schemas.PostDisplay)
 def create_post( request: schemas.PostBase, db: Session = Depends(get_db), current_user: schemas.UserBase = Depends(get_current_user)):
     if not request.image_url_type in image_url_types:
        raise HTTPException(status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
@@ -43,7 +43,7 @@ def delete_post(id: int, db: Session = Depends(get_db),current_user: schemas.Gro
     db_post.delete_post(db, id)
     return
 
-@router.post('/')
+@router.post('/upload_image')
 def upload_image(image: UploadFile = File(...)):
   letters = string.ascii_letters
   rand_str = ''.join(random.choice(letters) for i in range(6))
