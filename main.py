@@ -1,7 +1,7 @@
 # main.py
 
 from fastapi import FastAPI
-from routers import users, posts, friends, groups, comments, members, grouprequests
+from routers import users, posts, friendrequest, groups, comments, members, grouprequests,friends
 from db.database import engine
 from db import models
 from auth import authentication
@@ -15,6 +15,7 @@ app.include_router(authentication.router)
 app.include_router(users.router)
 app.include_router(posts.router)
 app.include_router(friends.router)
+app.include_router(friendrequest.router)
 app.include_router(members.router)
 app.include_router(groups.router)
 app.include_router(grouprequests.router)

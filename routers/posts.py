@@ -38,8 +38,16 @@ def read_posts(db: Session = Depends(get_db), current_user: schemas.UserBase = D
     return posts
 
 
+# @router.delete("/{id}/")
+# def delete_post(id: int, db: Session = Depends(get_db),current_user: schemas.GroupBase = Depends(get_current_user)):
+#     db_post.delete_post(db, id)
+#     return
+
 @router.delete("/{id}/")
-def delete_post(id: int, db: Session = Depends(get_db),current_user: schemas.GroupBase = Depends(get_current_user)):
+def delete_post(id: int, db: Session = Depends(get_db), current_user: schemas.UserBase = Depends(get_current_user)):
+    post = db_post.get_post(db, id)
+    if post.owner_id != current_user.id:
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Not authorized to delete this post")
     db_post.delete_post(db, id)
     return
 

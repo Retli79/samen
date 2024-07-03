@@ -36,7 +36,6 @@ def add_group_member(db: Session, group_id: int, user_id: int, role: str = 'memb
     return add_group_membership
  
 def delete_member(db: Session, member_id: int):
-    #member = db.query(models.Group).filter(models.Group.id == group_id).first()
     member = db.query(models.GroupMembership).filter(models.GroupMembership.id == member_id).first()
     if not member:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"Member with id {id} not found")
@@ -45,26 +44,35 @@ def delete_member(db: Session, member_id: int):
         db.commit()
     return
  
-def delete_group(db: Session, group_id: int):
+# def delete_group(db: Session, group_id: int):
+#     members = db.query(models.GroupMembership).filter(models.GroupMembership.group_id == group_id).all()
+#     for member in members:
+#         delete_member(db, member.id)
+   
+#     group = db.query(models.Group).filter(models.Group.id == group_id).first()
+#     if not group:
+#         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"Group with id {id} not found")
+#     if group:
+#         db.delete(group)
+#         db.commit()
+#     return
+
+def delete_group(db: Session, group_id: int, current_user_id: int):
+    group = db.query(models.Group).filter(models.Group.id == group_id).first()
+    if not group:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"Group with id {group_id} not found")
+
+    if group.admin_id != current_user_id:
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Not authorized to delete this group")
+
     members = db.query(models.GroupMembership).filter(models.GroupMembership.group_id == group_id).all()
     for member in members:
         delete_member(db, member.id)
-   
-    group = db.query(models.Group).filter(models.Group.id == group_id).first()
-    if not group:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"Group with id {id} not found")
-    if group:
-        db.delete(group)
-        db.commit()
+    
+    db.delete(group)
+    db.commit()
     return
 
-
-
-
-
-
-
-######################################################
 def create_group_request(db: Session, group_request: schemas.GroupRequestBase):
     add_group_request = models.GroupRequest(
         sender_id=group_request.sender_id, 
@@ -105,3 +113,14 @@ def get_group_requests(db: Session, user_id: int):
 
 def get_group_memberships(db: Session, group_id: int):
     return db.query(models.GroupMembership).filter(models.GroupMembership.group_id == group_id).all()
+
+def get_group_request_by_id(db: Session, request_id: int):
+    return db.query(models.GroupRequest).filter(models.GroupRequest.id == request_id).first()
+
+def get_group_admin(db: Session, group_id: int):
+    return db.query(models.User).join(models.Group).filter(models.Group.id == group_id, models.Group.admin_id == models.User.id).first()
+
+
+
+
+

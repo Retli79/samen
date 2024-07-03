@@ -21,7 +21,6 @@ def create_post(db: Session, request: schemas.PostBase, owner_id: int):
     db.add(new_post)
     db.commit()
     db.refresh(new_post)
-    print("-------------------------------",new_post)
     return new_post
 
 
@@ -36,11 +35,24 @@ def get_post(db:Session, id: int):
         detail=f"Post with id {id} not found")
     return post
 
+# def delete_post(db: Session, id: int):
+#     post = db.query(models.Post).filter(models.Post.id == id).first() 
+#     if not post:
+#         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"Post with id {id} not found")
+#     if post:
+#         db.delete(post)
+#         db.commit()
+#     return 
+
 def delete_post(db: Session, id: int):
-    post = db.query(models.Post).filter(models.Post.id == id).first() 
+    post = db.query(models.Post).filter(models.Post.id == id).first()
     if not post:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"Post with id {id} not found")
-    if post:
-        db.delete(post)
-        db.commit()
-    return 
+
+    comments = db.query(models.DbComment).filter(models.DbComment.post_id == id).all()
+    for comment in comments:
+        db.delete(comment)
+
+    db.delete(post)
+    db.commit()
+    return

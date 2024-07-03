@@ -1,12 +1,12 @@
-# routers/groups.py
+# routers/grouprequests.py
 
 from fastapi import APIRouter, Depends, HTTPException
-from sqlalchemy.orm.session import Session
-from routers import schemas
-from db.database import get_db
+from sqlalchemy.orm import Session
 from typing import List
-from auth.oauth2 import get_current_user
+from db.database import get_db
+from routers import schemas
 from db import db_groups
+from auth.oauth2 import get_current_user
 
 router = APIRouter(
     prefix="/grouprequests",
@@ -14,20 +14,48 @@ router = APIRouter(
 )
 
 @router.post("/", response_model=schemas.GroupRequestDisplay)
-def send_group_request(group_request: schemas.GroupRequestBase, db: Session = Depends(get_db), current_user: schemas.UserBase = Depends(get_current_user)):
+def create_group_request(group_request: schemas.GroupRequestBase, db: Session = Depends(get_db)):
     return db_groups.create_group_request(db, group_request)
 
-@router.put("/{id}/", response_model=schemas.GroupRequestDisplay)
-def accept_or_deny_group_requests(id: int, group_request: schemas.GroupRequestBase, db: Session = Depends(get_db), current_user: schemas.UserBase = Depends(get_current_user)):
-    if id != group_request.id:
-        raise HTTPException(status_code=400, detail="The id of the group request object must be the same as the id in the url")
-    if group_request.receiver_id != current_user.id:
-        raise HTTPException(status_code=403, detail="Can only update group requests received by you")
-    if group_request.status == 'pending':
-        raise HTTPException(status_code=400, detail="Cannot update a group request to pending state, it should be accepted or rejected")
-    
-    return db_groups.update_group_request(db, group_request)
+@router.get("/{user_id}", response_model=List[schemas.GroupRequestDisplay])
+def get_group_requests(user_id: int, db: Session = Depends(get_db)):
+    return db_groups.get_group_requests(db, user_id)
 
-@router.get("/", response_model=List[schemas.GroupRequestDisplay])
-def read_group_requests(db: Session = Depends(get_db), current_user: schemas.UserBase = Depends(get_current_user)):
-    return db_groups.get_group_requests(db, user_id=current_user.id)
+
+
+@router.put("/{request_id}/accept", response_model=schemas.GroupRequestDisplay)
+def accept_group_request(request_id: int, db: Session = Depends(get_db), current_user: schemas.UserBase = Depends(get_current_user)):
+    group_request = db_groups.get_group_request_by_id(db, request_id)
+    if not group_request:
+        raise HTTPException(status_code=404, detail="Group request not found")
+    
+    group_admin = db_groups.get_group_admin(db, group_request.group_id)
+    if not group_admin or group_admin.id != current_user.id:
+        raise HTTPException(status_code=403, detail="Only group admins can accept group requests")
+    
+    if group_request.status != 'pending':
+        raise HTTPException(status_code=400, detail="Group request is not pending")
+    
+    group_request.status = "accepted"
+    db.commit()
+    db.refresh(group_request)
+    db_groups.add_group_member(db, group_request.group_id, group_request.sender_id, role="member")
+    return group_request
+
+@router.put("/{request_id}/reject", response_model=schemas.GroupRequestDisplay)
+def reject_group_request(request_id: int, db: Session = Depends(get_db), current_user: schemas.UserBase = Depends(get_current_user)):
+    group_request = db_groups.get_group_request_by_id(db, request_id)
+    if not group_request:
+        raise HTTPException(status_code=404, detail="Group request not found")
+    
+    group_admin = db_groups.get_group_admin(db, group_request.group_id)
+    if not group_admin or group_admin.id != current_user.id:
+        raise HTTPException(status_code=403, detail="Only group admins can reject group requests")
+    
+    if group_request.status != 'pending':
+        raise HTTPException(status_code=400, detail="Group request is not pending")
+    
+    group_request.status = "rejected"
+    db.commit()
+    db.refresh(group_request)
+    return group_request

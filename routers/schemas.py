@@ -37,7 +37,6 @@ class GroupMembership(BaseModel):
     class Config:
         orm_mode = True
 
-#######################Group request
 
 
 class GroupRequest(BaseModel):
@@ -131,6 +130,32 @@ class FriendRequestDisplay(FriendRequestBase):
     class Config:
         orm_mode = True
 
+class FriendBase(BaseModel):
+    id: Optional[int] = None
+    user_id: int
+    friend_id: int
+
+
+class FriendDisplay(FriendBase):
+    user_id: int
+    friend_id: int
+    class Config:
+        orm_mode = True
+
+
+
+class FriendBase(BaseModel):
+    user_id: int
+    friend_id: int
+
+class UserFriend(BaseModel):
+    user_id: int
+    friend_id: int
+
+class FriendDisplay(FriendBase):
+    class Config:
+        orm_mode = True
+
 class GroupBase(BaseModel):
     name: str
     description: Optional[str] = None
@@ -159,14 +184,6 @@ class GroupMembershipDisplay(GroupMembershipBase):
     class Config:
         orm_mode = True
 
-# Resolve forward references
-# User.update_forward_refs()
-# Post.update_forward_refs()
-# FriendRequest.update_forward_refs()
-# Group.update_forward_refs()
-# GroupMembership.update_forward_refs()
-
-
 
 
 class CommentBase(BaseModel):
@@ -176,7 +193,7 @@ class CommentBase(BaseModel):
 
 
 
-  # schemas.py
+ 
 
 class GroupRequestBase(BaseModel):
     id: Optional[int] = None

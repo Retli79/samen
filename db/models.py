@@ -12,7 +12,7 @@ friends_table = Table(
     Column('friend_id', Integer, ForeignKey('users.id'))
 )
 
-# models.py
+
 
 class User(Base):
     __tablename__ = 'users'
@@ -46,6 +46,7 @@ class Post(Base):
     owner = relationship('User', back_populates='posts')
     comments = relationship('DbComment', back_populates='post')
 
+
 class FriendRequest(Base):
     __tablename__ = 'friend_requests'
 
@@ -56,6 +57,7 @@ class FriendRequest(Base):
     
     sender = relationship('User', foreign_keys=[sender_id], back_populates='friend_requests_sent')
     receiver = relationship('User', foreign_keys=[receiver_id], back_populates='friend_requests_received')
+
 
 class Group(Base):
     __tablename__ = 'groups'

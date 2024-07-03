@@ -25,5 +25,5 @@ def create_group(request: schemas.GroupBase, db: Session = Depends(get_db), curr
 #Delete Group
 @router.delete("/{group_id}/")
 def delete_group(group_id: int, db: Session = Depends(get_db),current_user: schemas.GroupBase = Depends(get_current_user)):
-    db_groups.delete_group(db, group_id)
+    db_groups.delete_group(db, group_id, current_user.id)
     return
